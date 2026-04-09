@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JuiceScan AI | Health Analyzer</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Phosphor Icons for modern sleek icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    
+    <!-- Animated background particles -->
+    <div class="bg-gradient"></div>
+    <div class="stars"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <i class="ph ph-scan"></i>
+                <h1>JuiceScan <span>AI</span></h1>
+            </div>
+            <p class="subtitle">Neural Network Beverage Brand & Health Risk Analyzer</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Upload Section -->
+            <section class="upload-section glass-panel" id="upload-panel">
+                <div class="drop-zone" id="drop-zone">
+                    <i class="ph ph-upload-simple upload-icon"></i>
+                    <h2>Drag & Drop Image</h2>
+                    <p>or click to browse from your device</p>
+                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" hidden>
+                </div>
+                <!-- Image Preview Section (Hidden by default) -->
+                <div class="preview-container hidden" id="preview-container">
+                    <img id="image-preview" src="" alt="Preview">
+                    <div class="preview-actions">
+                        <button class="btn btn-secondary" id="btn-cancel">Cancel</button>
+                        <button class="btn btn-primary" id="btn-analyze">
+                            <i class="ph ph-magic-wand"></i> Analyze Health Risks
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading State (Hidden) -->
+            <section class="loading-section glass-panel hidden" id="loading-panel">
+                <div class="scanner-container">
+                    <div class="scanner-line"></div>
+                    <img id="scanning-image" src="" alt="Scanning">
+                </div>
+                <h3>AI is processing...</h3>
+                <p>Running YOLOv8 model analysis</p>
+            </section>
+
+            <!-- Results Section (Hidden) -->
+            <section class="results-section glass-panel hidden" id="results-panel">
+                <div class="results-header">
+                    <h2>Analysis Complete</h2>
+                    <button class="btn btn-icon" id="btn-reset" title="Scan Another"><i class="ph ph-arrows-clockwise"></i></button>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Brand Identity Card -->
+                    <div class="result-card identity-card">
+                        <h4 class="card-label">Detected Brand</h4>
+                        <div class="brand-info">
+                            <h3 id="res-brand">CocaCola</h3>
+                            <div class="confidence-badge">
+                                <i class="ph ph-check-circle"></i> <span id="res-conf">98%</span> Match
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Level Card -->
+                    <div class="result-card risk-card" id="risk-card">
+                        <h4 class="card-label">Health Risk Matrix</h4>
+                        <div class="risk-display">
+                            <span class="risk-icon" id="res-risk-icon">🔴</span>
+                            <h3 id="res-risk-level">HIGH</h3>
+                        </div>
+                        <div class="meter-container">
+                            <div class="meter-bar" id="risk-meter-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nutrition Facts Card -->
+                    <div class="result-card nutrition-card">
+                        <h4 class="card-label">Nutrition Facts (per 100ml)</h4>
+                        <div class="nutri-stats">
+                            <div class="stat-box">
+                                <span class="stat-value" id="res-calories">42</span>
+                                <span class="stat-name">Calories</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-value" id="res-sugar">10.6g</span>
+                                <span class="stat-name">Sugar (<span id="res-sugar-lvl">High</span>)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Warnings Card -->
+                    <div class="result-card warnings-card">
+                        <h4 class="card-label"><i class="ph ph-warning-circle text-red"></i> Medical Warnings</h4>
+                        <ul class="warning-list" id="res-warnings">
+                            <!-- Populated via JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Medical Advice Card -->
+                    <div class="result-card advice-card advice-full span-2">
+                        <h4 class="card-label"><i class="ph ph-stethoscope text-blue"></i> AI Dietary Advice</h4>
+                        <p class="advice-text" id="res-advice">Contains high sugar and caffeine. Not suitable for diabetics...</p>
+                        
+                        <div class="safe-for-container hidden" id="safe-for-container">
+                            <h5>Safe For:</h5>
+                            <ul class="safe-list" id="res-safe"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
