@@ -1,0 +1,5 @@
+Thums_up
+Sprite
+Slice
+Pulpy_Orange
+P.Zero
