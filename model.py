@@ -10,7 +10,18 @@ def main():
         batch=16,
         device=0,
         workers=2,
-        amp=True
+        amp=True,
+
+        # 🔥 AUGMENTATION SETTINGS
+        hsv_h=0.015,   # color variation
+        hsv_s=0.7,     # saturation
+        hsv_v=0.4,     # brightness
+
+        degrees=10,    # rotation
+        translate=0.1, # shift
+        scale=0.2,     # zoom in/out
+
+        fliplr=0.5     # horizontal flip
     )
 
 if __name__ == "__main__":
