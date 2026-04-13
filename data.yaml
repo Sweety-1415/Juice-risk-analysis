@@ -1,0 +1,27 @@
+path: dataset
+
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: 7_up
+  1: Coca_Cola
+  2: Fanta
+  3: Frooti
+  4: Limca
+  5: MD.Diet
+  6: MD.Orig
+  7: Maaza
+  8: P.Cherry
+  9: P.Orig
+  10: P.Rsugar
+  11: P.Zero
+  12: P.diet
+  13: Pulpy_Orange
+  14: Slice
+  15: Sprite
+  16: Thums_Up
+  17: campa
+  18: fizz
+  19: mirinda

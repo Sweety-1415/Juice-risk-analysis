@@ -1,13 +1,13 @@
 from ultralytics import YOLO
 
 def main():
-    model = YOLO("yolov8n-cls.pt")
+    model = YOLO("yolov8n.pt")  # detection model
 
     model.train(
-        data="dataset",
+        data="data.yaml",
         epochs=50,
-        imgsz=224,
-        batch=16,
+        imgsz=640,
+        batch=8,        # safe for RTX 3050 4GB
         device=0,
         workers=2,
         amp=True,

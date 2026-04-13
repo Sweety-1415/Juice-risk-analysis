@@ -1,6 +1,6 @@
-Thums_up
-Sprite
-Slice
-Pulpy_Orange
-P.Zero
-P.Rsugar
+10
+10
+10
+10
+10
+10

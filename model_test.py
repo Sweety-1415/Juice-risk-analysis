@@ -1,32 +1,20 @@
-import cv2
 from ultralytics import YOLO
+import cv2
 
-model = YOLO(r"runs\classify\train3\weights\best.pt")
-
-THRESHOLD = 0.7  # 🔥 tune this (0.6–0.8 ideal)
+model = YOLO(r"runs\detect\train\weights\best.pt")
 
 cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
-    results = model(frame)
 
-    probs = results[0].probs
-    top1 = probs.top1
-    confidence = probs.top1conf.item()
+    results = model(frame, conf=0.6)
 
-    if confidence > THRESHOLD:
-        label = results[0].names[top1]
-        text = f"{label} ({confidence:.2f})"
-    else:
-        text = f"Unknown ({confidence:.2f})"
+    annotated = results[0].plot()
 
-    cv2.putText(frame, text, (20, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+    cv2.imshow("Detection", annotated)
 
-    cv2.imshow("Prediction", frame)
-
-    if cv2.waitKey(1) & 0xFF == 27:
+    if cv2.waitKey(1) == 27:
         break
 
 cap.release()

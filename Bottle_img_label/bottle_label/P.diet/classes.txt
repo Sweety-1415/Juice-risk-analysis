@@ -1,8 +1,8 @@
-Thums_up
-Sprite
-Slice
-Pulpy_Orange
-P.Zero
-P.Rsugar
-P.Orig
-P.diet
+12
+12
+12
+12
+12
+12
+12
+12
