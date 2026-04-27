@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Edit Tracker Entry | NutriLens{% endblock %}
+{% block page_content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Edit Entry</p>
+        <h2>Update one tracker record.</h2>
+        <p class="muted">Change the drink details and NutriLens will recalculate the health analysis before saving it back to MySQL.</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('personal_tracker') }}" class="btn-secondary">Back to Tracker</a>
+    </div>
+</section>
+
+<form method="post" class="card form-stack">
+    <label>Date
+        <input type="date" name="entry_date" value="{{ entry.entry_date.isoformat() }}" required>
+    </label>
+    <label>Known Beverage
+        <select name="beverage_key">
+            <option value="">Select from trained bottle classes</option>
+            {% for key, label in catalog_choices %}
+            <option value="{{ key }}" {% if entry.beverage_key == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <p class="muted">Leave the dropdown empty if this is a custom drink.</p>
+    <label>Custom Beverage Name
+        <input type="text" name="custom_name" value="{% if custom_mode %}{{ entry.beverage_name }}{% endif %}">
+    </label>
+    <label>Ingredients
+        <textarea name="ingredients_text" rows="3">{{ entry.ingredients_text or '' }}</textarea>
+    </label>
+    <div class="mini-grid">
+        <label>Sugar (g)
+            <input type="number" step="0.1" name="sugar_g" value="{{ entry.sugar_g }}">
+        </label>
+        <label>Sodium (mg)
+            <input type="number" step="0.1" name="sodium_mg" value="{{ entry.sodium_mg }}">
+        </label>
+        <label>Caffeine (mg)
+            <input type="number" step="0.1" name="caffeine_mg" value="{{ entry.caffeine_mg }}">
+        </label>
+        <label>Calories
+            <input type="number" step="0.1" name="calories" value="{{ entry.calories }}">
+        </label>
+        <label>Acidity (0-10)
+            <input type="number" step="0.1" min="0" max="10" name="acidity" value="{{ entry.acidity }}">
+        </label>
+        <label>Quantity (ml)
+            <input type="number" step="1" min="50" name="quantity_ml" value="{{ entry.quantity_ml }}">
+        </label>
+    </div>
+    <label>Notes
+        <textarea name="notes" rows="3">{{ entry.notes or '' }}</textarea>
+    </label>
+    <div class="button-row">
+        <button type="submit" class="btn-primary">Save Changes</button>
+        <a href="{{ url_for('personal_tracker') }}" class="btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

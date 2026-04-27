@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}ML Evaluation | NutriLens{% endblock %}
+{% block page_content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Model Evaluation</p>
+        <h2>YOLO training metrics and real app detection counts.</h2>
+        <p class="muted">This combines values from `results.csv` with the number of successful and failed detections saved for your account.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Epochs</span>
+        <strong>{{ training.epochs }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Precision</span>
+        <strong>{{ training.precision }}%</strong>
+    </article>
+    <article class="stat-card">
+        <span>Recall</span>
+        <strong>{{ training.recall }}%</strong>
+    </article>
+    <article class="stat-card">
+        <span>mAP50 / mAP50-95</span>
+        <strong>{{ training.map50 }}% / {{ training.map50_95 }}%</strong>
+    </article>
+</section>
+
+<section class="split-grid" style="margin-bottom: 2rem;">
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Detection Outcome</h3>
+            <p class="muted">Ratio of successful scans</p>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 1rem 0;">
+            <canvas id="mlOutcomeChart" height="240" style="max-width: 80%;"></canvas>
+        </div>
+    </article>
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Most Detected Bottles</h3>
+            <p class="muted">Brand frequency over time</p>
+        </div>
+        <div style="padding-top: 1rem;">
+            <canvas id="brandChart" height="240"></canvas>
+        </div>
+    </article>
+</section>
+
+<section class="split-grid" style="margin-bottom: 2rem;">
+    <article class="card glass" style="grid-column: 1 / -1;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;">
+            <h3>YOLOv8 ML Evaluation</h3>
+            <p class="muted">Per-bottle accuracy and overall confidence metrics</p>
+        </div>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div style="flex: 0 0 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-md); padding: 2rem;">
+                <span class="muted" style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em;">Overall Success Rate</span>
+                <strong style="font-size: 3.5rem; color: var(--accent-emerald); margin: 0.5rem 0;">
+                    {% if insights.total > 0 %}
+                    {{ ((insights.successful / insights.total) * 100)|round(1) }}%
+                    {% else %}
+                    0%
+                    {% endif %}
+                </strong>
+                <span class="muted" style="font-size: 0.9rem;">Global Avg Conf: <strong style="color: var(--text-primary);">{{ insights.avg_confidence }}%</strong></span>
+            </div>
+            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                {% for item in insights.ml_evaluation %}
+                <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-blue);">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem;">{{ item.label }}</h4>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span class="muted">Scans: <strong style="color: var(--text-primary);">{{ item.count }}</strong></span>
+                        <span class="muted">Avg Conf: <strong style="color: var(--accent-emerald);">{{ item.avg_conf }}%</strong></span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="muted" style="align-self: center;">No bottle evaluations available yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="card">
+    <div class="card-head">
+        <h3>Runtime Summary</h3>
+    </div>
+    <div class="list-cards">
+        <div class="list-row">
+            <span>Successful detections</span>
+            <strong>{{ insights.successful }}</strong>
+        </div>
+        <div class="list-row">
+            <span>Not detected count</span>
+            <strong>{{ insights.failed }}</strong>
+        </div>
+        <div class="list-row">
+            <span>Average confidence</span>
+            <strong>{{ insights.avg_confidence }}%</strong>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+NutriCharts.renderDonutChart("mlOutcomeChart", [
+    {label: "Detected", value: {{ insights.successful }}},
+    {label: "Not Detected", value: {{ insights.failed }}}
+], ["#10b981", "#f43f5e"]); // Updated to emerald and rose
+NutriCharts.renderBarChart("brandChart", {{ insights.brand_counts|tojson }}, "#3b82f6"); // Updated to blue
+</script>
+{% endblock %}

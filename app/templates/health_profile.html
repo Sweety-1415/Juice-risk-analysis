@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Health Profile | NutriLens{% endblock %}
+{% block page_content %}
+
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Health Profile</p>
+        <h2>Tell NutriLens about your medical profile.</h2>
+        <p class="muted">These selections are saved to your account and used during every bottle scan and tracker analysis to give you personalised, condition-aware results.</p>
+    </div>
+    {% if profile and profile.profile_completed %}
+    <div class="header-actions">
+        <a href="{{ url_for('dashboard') }}" class="btn-secondary">Back to Dashboard</a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- If new user, show skip banner -->
+{% if not profile or not profile.profile_completed %}
+<div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;
+    background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);
+    border-radius:var(--radius-md);margin-bottom:2rem;flex-wrap:wrap;">
+    <div style="flex:1;min-width:0;">
+        <strong style="display:block;color:#93c5fd;margin-bottom:0.15rem;">Welcome to NutriLens!</strong>
+        <p class="muted" style="font-size:0.9rem;">Setting up your health profile gives you personalised scan results. You can skip now and fill it in later.</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn-secondary" style="flex-shrink:0;white-space:nowrap;">
+        Fill in Later &rarr;
+    </a>
+</div>
+{% endif %}
+
+<form method="post" style="display:flex;flex-direction:column;gap:2rem;">
+
+    <!-- Medical Conditions -->
+    <article class="card glass">
+        <div class="card-head" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:1rem;margin-bottom:1.5rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(244,63,94,0.15);
+                    display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 style="margin:0;">Medical Conditions</h3>
+                    <p class="muted" style="font-size:0.85rem;margin:0;">Select all that apply to you</p>
+                </div>
+            </div>
+        </div>
+        <div class="checkbox-grid">
+            {% for item in conditions %}
+            <label class="checkbox-pill">
+                <input type="checkbox" name="conditions" value="{{ item }}"
+                    {% if profile and item in (profile.conditions or []) %}checked{% endif %}>
+                <span>{{ item }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </article>
+
+    <!-- Allergies / Sensitivities -->
+    <article class="card glass">
+        <div class="card-head" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:1rem;margin-bottom:1.5rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(245,158,11,0.15);
+                    display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 style="margin:0;">Allergies &amp; Sensitivities</h3>
+                    <p class="muted" style="font-size:0.85rem;margin:0;">These trigger allergy alerts during scans</p>
+                </div>
+            </div>
+        </div>
+        <div class="checkbox-grid">
+            {% for item in sensitivities %}
+            <label class="checkbox-pill">
+                <input type="checkbox" name="sensitivities" value="{{ item }}"
+                    {% if profile and item in (profile.sensitivities or []) %}checked{% endif %}>
+                <span>{{ item }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </article>
+
+    <!-- Sugar limit + Notes side by side -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
+        <article class="card glass">
+            <div class="card-head" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:rgba(16,185,129,0.15);
+                        display:flex;align-items:center;justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">Daily Sugar Limit</h3>
+                        <p class="muted" style="font-size:0.85rem;margin:0;">Triggers over-limit alerts</p>
+                    </div>
+                </div>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:0.5rem;">
+                <span class="muted" style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Grams per day</span>
+                <input type="number" name="daily_sugar_limit_g" min="5" max="100" step="1"
+                    value="{{ profile.daily_sugar_limit_g if profile else 25 }}"
+                    style="font-size:1.5rem;font-weight:700;text-align:center;padding:1rem;">
+                <p class="muted" style="font-size:0.8rem;text-align:center;">WHO recommends ≤25g/day for adults</p>
+            </label>
+        </article>
+
+        <article class="card glass">
+            <div class="card-head" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:rgba(59,130,246,0.15);
+                        display:flex;align-items:center;justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;">Health Notes</h3>
+                        <p class="muted" style="font-size:0.85rem;margin:0;">Optional extra context</p>
+                    </div>
+                </div>
+            </div>
+            <textarea name="notes" rows="5" placeholder="Any extra medical notes, current medications, dietary restrictions…"
+                style="width:100%;resize:vertical;">{{ profile.notes if profile else '' }}</textarea>
+        </article>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <button class="btn-primary" type="submit" style="flex:1;min-width:200px;padding:1rem;">
+            Save Health Profile
+        </button>
+        {% if not profile or not profile.profile_completed %}
+        <a href="{{ url_for('dashboard') }}" class="btn-secondary"
+            style="flex:1;min-width:200px;padding:1rem;text-align:center;">
+            Skip for Now &rarr;
+        </a>
+        {% endif %}
+    </div>
+
+</form>
+{% endblock %}

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment secrets
+.env
+
+# YOLO model weights (too large, upload separately)
+*.pt
+
+# Training runs and datasets (not needed for deployment)
+runs/
+dataset/
+all_Bottle_image/
+Bottle_img_label/
+data.yaml
+datafix.py
+model.py
+model_test.py
+train_test_val.py
+
+# Uploaded scan images (ephemeral on server)
+app/static/captures/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

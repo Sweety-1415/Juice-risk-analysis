@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Database Error | NutriLens{% endblock %}
+{% block page_content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">MySQL Required</p>
+        <h2>NutriLens could not connect to MySQL.</h2>
+    </div>
+</section>
+<section class="card">
+    <p class="muted">The app is configured to use MySQL only. Start MySQL and verify the credentials in `.env.example` or your environment variables.</p>
+    <pre class="code-block">{{ error }}</pre>
+</section>
+{% endblock %}

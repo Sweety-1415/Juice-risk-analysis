@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Scan Menu | NutriLens{% endblock %}
+{% block page_content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Scan Menu</p>
+        <h2>Upload a bottle photo or scan in real time.</h2>
+        <p class="muted">The YOLO `best.pt` model detects the bottle, then NutriLens analyses ingredients, nutrients, disease risk, allergy alerts, and recommendations.</p>
+    </div>
+</section>
+
+<section class="split-grid" style="align-items: stretch;">
+    <article class="card glass" style="display: flex; flex-direction: column;">
+        <div class="card-head">
+            <h3>Upload Photo</h3>
+            <p class="muted">Upload an existing image of a beverage.</p>
+        </div>
+        <form id="uploadScanForm" class="form-stack" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed rgba(255,255,255,0.2); border-radius: var(--radius-md); padding: 3rem 2rem; margin-top: 1rem; background: rgba(255,255,255,0.02);">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <label style="cursor: pointer; display: block; font-weight: 600; color: var(--accent-emerald);">
+                    Select an image
+                    <input type="file" name="image" accept="image/*" required style="display: none;" onchange="document.getElementById('fileName').textContent = this.files[0]?.name || 'No file selected';">
+                </label>
+                <p id="fileName" class="muted" style="margin-top: 0.5rem; font-size: 0.85rem;">No file selected</p>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Analyse Uploaded Bottle</button>
+        </form>
+    </article>
+    <article class="card glass" style="display: flex; flex-direction: column;">
+        <div class="card-head">
+            <h3>Real-Time Camera</h3>
+            <p class="muted">Scan directly using your device webcam.</p>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            <video id="webcamFeed" autoplay playsinline class="camera-frame" style="flex: 1; object-fit: cover; background: rgba(0,0,0,0.2); min-height: 280px;"></video>
+            <div class="button-row" style="display: flex; gap: 1rem;">
+                <button type="button" class="btn-secondary" id="startCameraBtn" style="flex: 1;">Start Camera</button>
+                <button type="button" class="btn-primary" id="captureBtn" style="flex: 1;">Capture & Analyse</button>
+            </div>
+        </div>
+        <canvas id="captureCanvas" class="hidden"></canvas>
+    </article>
+</section>
+
+<section class="card glass" id="scanResultCard">
+    <div class="card-head">
+        <h3>Scan Result</h3>
+        <p class="muted" id="scanStatusText">No scan performed yet.</p>
+    </div>
+    <div id="scanResultBody" class="empty-state">
+        Scan a bottle to see detected product name, nutrient summary, who can consume it, who should avoid it, and personalised suggestions.
+    </div>
+</section>
+
+<section class="card glass">
+    <div class="card-head">
+        <h3>Recent Scans</h3>
+    </div>
+    <div class="list-cards">
+        {% for record in recent_scans %}
+        <div class="list-row">
+            <div>
+                <strong>{{ record.detected_name or 'Not detected' }}</strong>
+                <p class="muted">{{ record.created_at.strftime('%d %b %Y %I:%M %p') }}</p>
+            </div>
+            <span class="badge badge-{{ (record.analysis_summary or {}).get('status', 'unknown') }}">{{ (record.analysis_summary or {}).get('status', 'unknown')|title }}</span>
+        </div>
+        {% else %}
+        <p class="muted">No scan history yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+{% endblock %}

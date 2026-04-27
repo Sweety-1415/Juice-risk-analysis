@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | NutriLens{% endblock %}
+{% block page_content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Dashboard</p>
+        <h2>Insights from scans and daily drink tracking.</h2>
+        <p class="muted">NutriLens combines YOLO detections with your saved health profile to surface patterns, alerts, and recent risky choices.</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('scan') }}" class="btn-primary">Open Scan Menu</a>
+        <a href="{{ url_for('personal_tracker') }}" class="btn-secondary">Track a Drink</a>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card glass" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;">
+        <span class="label" style="color: var(--accent-blue); font-weight: 600;">Total Scans</span>
+        <strong style="font-size: 3rem; margin: 0.5rem 0;">{{ payload.scan.total }}</strong>
+        <small class="muted" style="font-size: 0.9rem;">Top brand: <span style="color: var(--text-primary);">{{ payload.scan.top_brand }}</span></small>
+    </article>
+    <article class="stat-card glass" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;">
+        <span class="label" style="color: var(--accent-emerald); font-weight: 600;">Detection Success</span>
+        <strong style="font-size: 3rem; margin: 0.5rem 0;">{{ payload.scan.successful }} <span style="font-size: 1.5rem; color: var(--text-secondary);">/ {{ payload.scan.total }}</span></strong>
+        <small class="muted" style="font-size: 0.9rem;">Average confidence: <span style="color: var(--text-primary);">{{ payload.scan.avg_confidence }}%</span></small>
+    </article>
+    <article class="stat-card glass" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;">
+        <span class="label" style="color: var(--accent-amber); font-weight: 600;">Tracker Entries</span>
+        <strong style="font-size: 3rem; margin: 0.5rem 0;">{{ payload.tracker.entries }}</strong>
+        <small class="muted" style="font-size: 0.9rem;"><span style="color: var(--text-primary);">{{ payload.tracker.total_sugar }} g</span> total sugar logged</small>
+    </article>
+    <article class="stat-card glass" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; position: relative; overflow: hidden;">
+        {% if payload.tracker.risky_days > 0 %}
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-rose);"></div>
+        {% endif %}
+        <span class="label" style="color: var(--accent-rose); font-weight: 600;">Risky Days</span>
+        <strong style="font-size: 3rem; margin: 0.5rem 0;">{{ payload.tracker.risky_days }}</strong>
+        <small class="muted" style="font-size: 0.9rem;">Daily sugar limit: <span style="color: var(--text-primary);">{{ payload.tracker.sugar_limit }} g</span></small>
+    </article>
+</section>
+
+<section class="split-grid">
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Scan Pattern</h3>
+            <p class="muted">Scans performed over the last 7 days</p>
+        </div>
+        <div style="padding-top: 1rem;">
+            <canvas id="scanChart" height="240"></canvas>
+        </div>
+    </article>
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Tracker Sugar Load</h3>
+            <p class="muted">Sugar consumed (g) over the last 7 days</p>
+        </div>
+        <div style="padding-top: 1rem;">
+            <canvas id="trackerChart" height="240"></canvas>
+        </div>
+    </article>
+</section>
+
+
+<section class="split-grid">
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Health Risk Breakdown</h3>
+            <p class="muted">Distribution of safety status from saved analyses</p>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 1rem 0;">
+            <canvas id="riskChart" height="240" style="max-width: 80%;"></canvas>
+        </div>
+    </article>
+    <article class="card glass" style="display: flex; flex-direction: column;">
+        <div class="card-head">
+            <h3>Insights & Alerts</h3>
+            <p class="muted">Personalised warnings based on your data</p>
+        </div>
+        <div class="alert-list" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            {% if payload.alerts %}
+                {% for alert in payload.alerts %}
+                <div class="alert-item" style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>{{ alert }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 2rem; opacity: 0.6;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <p style="color: var(--text-primary); font-weight: 500;">Looking good!</p>
+                    <p class="muted">No major alerts or risks right now.</p>
+                </div>
+            {% endif %}
+        </div>
+    </article>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Health Score Trend</h3>
+            <p class="muted">7-day evolution of your daily health score</p>
+        </div>
+        <div style="padding-top: 1rem;">
+            <canvas id="healthScoreDashChart" height="240"></canvas>
+        </div>
+    </article>
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Top Tracked Beverages</h3>
+            <p class="muted">What you actually consume the most</p>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 1rem 0;">
+            <canvas id="topTrackedChart" height="240" style="max-width: 80%;"></canvas>
+        </div>
+    </article>
+    <article class="card glass">
+        <div class="card-head">
+            <h3>Scan Source</h3>
+            <p class="muted">Live Webcam vs Image Upload</p>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; padding: 1rem 0;">
+            <canvas id="sourceChart" height="240" style="max-width: 80%;"></canvas>
+        </div>
+    </article>
+</section>
+
+<section class="split-grid">
+    <article class="card glass">
+        <div class="card-head" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">Recent Scans</h3>
+            <a href="{{ url_for('scan_history') }}" style="font-size: 0.85rem; color: var(--accent-emerald); font-weight: 600;">View All &rarr;</a>
+        </div>
+        <div class="list-cards" style="margin-top: 1rem;">
+            {% for record in recent_scans %}
+            <div class="list-row" style="background: rgba(255,255,255,0.02); border-radius: var(--radius-md); margin-bottom: 0.5rem; border: none;">
+                <div>
+                    <strong style="display: block;">{{ record.detected_name or 'Not detected' }}</strong>
+                    <p class="muted" style="font-size: 0.85rem;">{{ record.created_at.strftime('%d %b %Y %I:%M %p') }}</p>
+                </div>
+                <span class="badge badge-{{ (record.analysis_summary or {}).get('status', 'unknown') }}">{{ (record.analysis_summary or {}).get('status', 'unknown')|title }}</span>
+            </div>
+            {% else %}
+            <p class="muted" style="text-align: center; padding: 2rem 0;">No scans yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+    <article class="card glass">
+        <div class="card-head" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">Recent Tracker Entries</h3>
+            <a href="{{ url_for('personal_tracker') }}" style="font-size: 0.85rem; color: var(--accent-emerald); font-weight: 600;">View Tracker &rarr;</a>
+        </div>
+        <div class="list-cards" style="margin-top: 1rem;">
+            {% for entry in recent_tracker %}
+            <div class="list-row" style="background: rgba(255,255,255,0.02); border-radius: var(--radius-md); margin-bottom: 0.5rem; border: none;">
+                <div>
+                    <strong style="display: block;">{{ entry.beverage_name }}</strong>
+                    <p class="muted" style="font-size: 0.85rem;">{{ entry.entry_date.strftime('%d %b %Y') }} • {{ entry.sugar_g }} g sugar</p>
+                </div>
+                <span class="badge badge-{{ (entry.analysis_summary or {}).get('status', 'unknown') }}">{{ (entry.analysis_summary or {}).get('status', 'unknown')|title }}</span>
+            </div>
+            {% else %}
+            <p class="muted" style="text-align: center; padding: 2rem 0;">No tracker data yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+NutriCharts.renderBarChart("scanChart", {{ payload.scan.recent_days|tojson }}, "#3b82f6");
+NutriCharts.renderBarChart("trackerChart", {{ payload.tracker.sugar_chart|tojson }}, "#f59e0b");
+NutriCharts.renderDonutChart("riskChart", {{ payload.scan.risk_breakdown|tojson }}, ["#10b981", "#f59e0b", "#f43f5e"]);
+NutriCharts.renderLineChart("healthScoreDashChart", {{ payload.tracker.health_scores|tojson }}, "#8b5cf6");
+NutriCharts.renderDonutChart("topTrackedChart", {{ payload.tracker.top_tracked|tojson }}, ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"]);
+NutriCharts.renderDonutChart("sourceChart", {{ payload.scan.source_distribution|tojson }}, ["#ec4899", "#06b6d4"]);
+</script>
+{% endblock %}
